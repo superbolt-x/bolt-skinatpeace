@@ -11,7 +11,7 @@ WITH
         SELECT 
             '{{granularity}}' as date_granularity,
             {{granularity}} as date,
-            COALESCE(SUM(gross_revenue),0) - COALESCE(SUM(total_discounts),0) as subtotal_sales
+            COALESCE(SUM(subtotal_revenue),0) as subtotal_sales
         FROM {{ ref('shopify_daily_sales_by_order') }}
         WHERE cancelled_at IS NULL
         AND subtotal_revenue > 0
