@@ -85,7 +85,7 @@ sho_data as
             0 as ga4_sessions,
             0 as ga4_sessions_adjusted
         FROM initial_sho_data 
-        JOIN sales_adj USING (date,date_granularity)
+        JOIN sales USING (date,date_granularity)
         GROUP BY channel, date, date_granularity
     )
     
@@ -100,7 +100,7 @@ SELECT channel,
     shopify_total_sales,
     shopify_orders,
     shopify_first_orders,
-    shopify_subtotal_sales_adj,
+    shopify_subtotal_sales,
     shopify_net_sales,
     shopify_gross_sales
 FROM (
