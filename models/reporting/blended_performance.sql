@@ -81,9 +81,7 @@ sho_data as
             COALESCE(SUM(shopify_first_orders),0) as shopify_first_orders, 
             COALESCE(SUM(subtotal_sales), 0) as shopify_subtotal_sales,
             COALESCE(SUM(shopify_gross_sales),0)-COALESCE(SUM(subtotal_discount),0)-COALESCE(SUM(subtotal_refund),0) as shopify_net_sales,
-            COALESCE(SUM(shopify_gross_sales),0) as shopify_gross_sales,
-            0 as ga4_sessions,
-            0 as ga4_sessions_adjusted
+            COALESCE(SUM(shopify_gross_sales),0) as shopify_gross_sales
         FROM initial_sho_data 
         JOIN sales USING (date,date_granularity)
         GROUP BY channel, date, date_granularity
