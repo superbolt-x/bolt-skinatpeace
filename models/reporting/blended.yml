@@ -1,1 +1,24 @@
 version: 2
+
+sources:
+      
+- name: reporting
+  schema: reporting
+  tables:
+    - name: facebook_ad_performance
+      identifier: skinatpeace_facebook_ad_performance
+
+    - name: googleads_campaign_performance
+      identifier: skinatpeace_googleads_campaign_performance
+
+    - name: shopify_sales
+      identifier: skinatpeace_shopify_sales
+
+    - name: shopify_daily_sales_by_order
+      identifier: skinatpeace_shopify_daily_sales_by_order
+
+- name: shopify_base
+  schema: shopify_base
+  tables:
+    - name: shopify_orders
+      identifier: shopify_orders
