@@ -29,7 +29,7 @@ WITH
     AND order_id in (SELECT order_id FROM {{ source('shopify_base','shopify_orders') }})
     UNION ALL
     SELECT date, day, week, month, quarter, year, 
-        null as order_id, null as customer_order_index, 0 as gross_revenue, 0 as total_revenue, 0 as subtotal_discount, subtotal_refund 
+        null as order_id, null as customer_order_index, 0 as gross_revenue, 0 as total_revenue, 0 as subtotal_discount, subtotal_refund-amount_discrepancy_refund as subtotal_refund 
     FROM {{ ref('shopify_daily_refunds') }} 
     WHERE cancelled_at IS NULL
     AND order_id in (SELECT order_id FROM {{ source('shopify_base','shopify_orders') }})),
