@@ -5,34 +5,17 @@
 {%- set date_granularity_list = ['day','week','month','quarter','year'] -%}
 
 
-WITH 
-    sales AS (
-        {% for granularity in date_granularity_list %}
-        SELECT 
-            '{{granularity}}' as date_granularity,
-            {{granularity}} as date,
-            COALESCE(SUM(subtotal_revenue),0) as subtotal_sales
-        FROM {{ ref('shopify_daily_sales_by_order') }}
-        WHERE cancelled_at IS NULL
-        AND subtotal_revenue > 0
-        GROUP BY date_granularity, {{granularity}}
-        {% if not loop.last %}UNION ALL{% endif %}
-        {% endfor %}
-    ),
-
-    refund_order_data AS
+WITH refund_order_data AS
     (SELECT date, day, week, month, quarter, year, 
         order_id, customer_order_index, gross_revenue, total_revenue, subtotal_discount, 0 as subtotal_refund 
     FROM {{ ref('shopify_daily_sales_by_order') }}
     WHERE cancelled_at IS NULL
     AND subtotal_revenue > 0
-    AND order_id in (SELECT order_id FROM {{ source('shopify_base','shopify_orders') }})
     UNION ALL
     SELECT date, day, week, month, quarter, year, 
-        null as order_id, null as customer_order_index, 0 as gross_revenue, 0 as total_revenue, 0 as subtotal_discount, subtotal_refund-amount_discrepancy_refund as subtotal_refund 
+        null as order_id, null as customer_order_index, 0 as gross_revenue, 0 as total_revenue, 0 as subtotal_discount, subtotal_refund 
     FROM {{ ref('shopify_daily_refunds') }} 
-    WHERE cancelled_at IS NULL
-    AND order_id in (SELECT order_id FROM {{ source('shopify_base','shopify_orders') }})),
+    WHERE cancelled_at IS NULL),
     
     initial_sho_data AS (
         {% for granularity in date_granularity_list %}
@@ -71,11 +54,11 @@ sho_data as
             'Shopify' as channel,
             date,
             date_granularity,
-            0 as spend,
-            0 as clicks,
-            0 as impressions,
-            0 as paid_purchases,
-            0 as paid_revenue, 
+            SUM(0) as spend,
+            SUM(0) as clicks,
+            SUM(0) as impressions,
+            SUM(0) as paid_purchases,
+            SUM(0) as paid_revenue, 
             COALESCE(SUM(shopify_total_sales),0) as shopify_total_sales, 
             COALESCE(SUM(shopify_orders),0) as shopify_orders, 
             COALESCE(SUM(shopify_first_orders),0) as shopify_first_orders, 
@@ -83,7 +66,6 @@ sho_data as
             COALESCE(SUM(shopify_gross_sales),0)-COALESCE(SUM(subtotal_discount),0)-COALESCE(SUM(subtotal_refund),0) as shopify_net_sales,
             COALESCE(SUM(shopify_gross_sales),0) as shopify_gross_sales
         FROM initial_sho_data 
-        JOIN sales USING (date,date_granularity)
         GROUP BY channel, date, date_granularity
     )
     
